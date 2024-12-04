@@ -46,3 +46,136 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 30px;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close:hover {
+    color: #000;
+}
+
+/* Step-by-Step Instructions */
+.steps {
+    margin-top: 30px;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.step:hover {
+    transform: translateX(5px);
+}
+
+.step-number {
+    background-color: #007bff;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+/* Code Box Styles */
+.code-box {
+    background-color: #2d2d2d;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+code {
+    color: #fff;
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    word-break: break-all;
+}
+
+.copy-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.copy-btn:hover {
+    background-color: #0056b3;
+}
+
+.copy-btn:active {
+    transform: scale(0.98);
+}
+
+/* Animation for copy success */
+@keyframes copySuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.copy-success {
+    animation: copySuccess 0.3s ease-in-out;
+}
+.download-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #28a745; /* Green color */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.download-btn:hover {
+    background-color: #218838;
+}
