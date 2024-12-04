@@ -17,11 +17,17 @@ def test():
 @app.route('/api/v1/leaderboard/upload', methods=['POST'])
 def upload_leaderboard():
     data = request.json
-    if 'username' in data and 'cpu' in data and 'gpu' in data and 'ram' in data and 'sides' in data:
+    required_fields = ['username', 'cpu', 'gpu', 'ram', 'browser', 'averageFps']
+    missing_fields = [field for field in required_fields if field not in data]
+    
+    if not missing_fields:
         leaderboard_data.append(data)
         return jsonify({'status': 'success', 'message': 'Data uploaded successfully'}), 200
     else:
-        return jsonify({'status': 'error', 'message': 'Invalid data'}), 400
+        return jsonify({
+            'status': 'error', 
+            'message': f'Missing required fields: {", ".join(missing_fields)}'
+        }), 400
 
 @app.route('/api/v1/leaderboard/fetch', methods=['GET'])
 def fetch_leaderboard():
@@ -33,4 +39,4 @@ def download_file(filename):
     return send_from_directory(src_directory, filename)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0')
