@@ -41,7 +41,7 @@ echo "CPU Threads: $threads"
 
 json=$(jq -n --arg ram "$ram" --arg gpu "$gpu" --arg cpu "$cpu" --arg threads "$threads" --arg code "$code" '{ram: $ram, gpu: $gpu, cpu: $cpu, threads: $threads, code: $code}')
 
-response=$(curl -s -X POST -H "Content-Type: application/json" -d "$json" http://localhost:2077/api/v1/link/submit)
+response=$(curl -s -X POST -H "Content-Type: application/json" -d "$json" https://circlebenchmark.pythonanywhere.com/api/v1/link/submit)
 
 
 if echo "$response" | grep -q '"status": "error"'; then

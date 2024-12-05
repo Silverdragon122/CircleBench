@@ -39,7 +39,7 @@ try {
         code = $code
     } | ConvertTo-Json
 
-    Invoke-RestMethod -Uri "http://localhost:2077/api/v1/link/submit" -Method Post -ContentType "application/json" -Body $json -OutFile "curl_response.txt"
+    Invoke-RestMethod -Uri "https://circlebenchmark.pythonanywhere.com/api/v1/link/submit" -Method Post -ContentType "application/json" -Body $json -OutFile "curl_response.txt"
 
     
     $responseContent = Get-Content "curl_response.txt"

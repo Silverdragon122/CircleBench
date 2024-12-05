@@ -136,9 +136,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             let cmdCode;
             if (isWindows) {
                 cmdCode = `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                ; Invoke-WebRequest -Uri "http://localhost:2077/src/hwinfo.ps1" -OutFile "hwinfo.ps1"; .\\hwinfo.ps1 -code "${linkCode}"`;
+                ; Invoke-WebRequest -Uri "https://circlebenchmark.pythonanywhere.com/src/hwinfo.ps1" -OutFile "hwinfo.ps1"; .\\hwinfo.ps1 -code "${linkCode}"`;
             } else {
-                cmdCode = `curl -O 'http://localhost:2077/api/v1/hwinfo.sh?code=${linkCode}' && chmod +x hwinfo.sh && ./hwinfo.sh ${linkCode}`;
+                cmdCode = `curl -O 'https://circlebenchmark.pythonanywhere.com/api/v1/hwinfo.sh?code=${linkCode}' && chmod +x hwinfo.sh && ./hwinfo.sh ${linkCode}`;
             }
             cmdCodeElement.textContent = cmdCode;
 
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.getElementById('view-source-button').addEventListener('click', () => {
-    window.open('https://example.com', '_blank');
+    window.open('', '_blank');
 });
 
 function getBrowserName(userAgent) {
