@@ -6,7 +6,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     threadsElement.innerHTML = 'Threads: <span id="threads-count">Not loaded</span>';
     const hardwareInfoDiv = document.getElementById('hardware-info');
     hardwareInfoDiv.appendChild(threadsElement);
+    const viewSourceButton = document.getElementById('view-source-button');
 
+    if (viewSourceButton) {
+        viewSourceButton.addEventListener('click', () => {
+            window.open('https://github.com/Silverdragon122/CircleBench/blob/master/src/hwinfo.ps1', '_blank');
+        });
+    } else {
+        console.error('Element with id "view-source-button" not found.');
+    }
     const browserNameElement = document.createElement('p');
     browserNameElement.innerHTML = 'Browser: <span id="browser-name">Loading...</span>';
     hardwareInfoDiv.appendChild(browserNameElement);
@@ -203,10 +211,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }, 2000);
         });
     });
-});
-
-document.getElementById('view-source-button').addEventListener('click', () => {
-    window.open('', '_blank');
 });
 
 function getBrowserName(userAgent) {
