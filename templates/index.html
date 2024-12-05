@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Hardware Info</title>
     <link rel="stylesheet" href="src/index.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js" integrity="sha512-8BHxHDLsOHx+flIrQ0DrZcea7MkHqRU5GbTHmbdzMRnAaoCIkZ97PqZcXJkKZckMMhqfoeaJE+DNUVuyoQsO3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="src/index.js"></script>
 </head>
 <body>
@@ -16,52 +15,45 @@
             <p>RAM: <span id="ram-amount">Not loaded</span></p>
         </div>
         <button id="get-info-button" class="primary-button">Get Hardware Info</button>
-        <p>The following info will be uploaded to the leaderboard during the test. By clicking continue, you understand this info may be public.</p>
+        <p>The following info will be uploaded to the leaderboard during the test. By clicking continue, you understand this info may be public. If you do not gather hardware info properly, the system may fail to upload your results</p>
         <input type="text" id="username" placeholder="Enter your username">
         <button id="continue-button" disabled>Continue</button>
     </div>
 
-    <!-- Modal -->
-<div id="instruction-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Your link code is <span id="link-code"></span></h2>
+    <div id="instruction-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Obtaining accurate hardware info is easy! <span style="text-decoration: line-through;">for you, not for me 💀</span></h2>
 
-        <!-- Steps -->
-        <div class="steps">
-            <!-- Step 1 -->
-            <div class="step">
-                <div class="step-number">1</div>
-                <p>Press Windows Key + R to open Run dialog</p>
-            </div>
-            <!-- Step 2 -->
-            <div class="step">
-                <div class="step-number">2</div>
-                <p>Type "cmd" and press Enter</p>
-            </div>
-            <!-- Step 3 -->
-            <div class="step">
-                <div class="step-number">3</div>
-                <p>Copy and paste this command:</p>
-                <div class="code-box">
-                    <code id="cmd-code"></code>
-                    <button id="copy-button" class="copy-btn">Copy</button>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <p>Open the search bar on your windows device </p>
                 </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <p>Type "Powershell" and open the app titled "Windows Powershell"
+                    </p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <p>Copy and paste this command:</p>
+                    <div class="code-box">
+                        <code id="cmd-code"></code>
+                        <button id="copy-button" class="copy-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="step">
+                    <p>Dont trust the command? You are not required to use this script, this will just gather accurate hardware info innacesible by browsers directly. The benchmark and all other code except gathering remains in browser.</p>
+                    <button id="view-source-button" class="primary-button">View Source</button>
+                </div>
+                
             </div>
-            <!-- Step 4 -->
-            <div class="step">
-                <div class="step-number">4</div>
-                <p>Enter the code shown in CMD when prompted</p>
-            </div>
-        </div>
 
-        <!-- Success Message -->
-        <div id="success-message" style="display: none; color: green; margin-top: 20px;">
-            Hardware info received successfully!
+            <div id="success-message" style="display: none; color: green; margin-top: 20px;">
+                Hardware info received successfully!
+            </div>
         </div>
     </div>
-</div>
-
-    <script src="src/index.js"></script>
 </body>
 </html>

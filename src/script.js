@@ -1,11 +1,11 @@
-// script.js
+
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('container');
     const counterElement = document.getElementById('counter');
     const timerElement = document.createElement('div');
     timerElement.id = 'timer';
 
-    // Style timer element
+    
     timerElement.style.position = 'absolute';
     timerElement.style.top = '10px';
     timerElement.style.right = '10px';
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const durationInSeconds = 30;
     const circlesPerSecond = 2;
-    const startingCircles = 2500; // Number of circles to start with
+    const startingCircles = 2500; 
     let lastFrameTime = performance.now();
     let fpsValues = [];
     let startTime = performance.now();
@@ -30,19 +30,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const circle = document.createElement('div');
         circle.classList.add('circle');
 
-        // Set initial position and speed
+        
         const containerRect = container.getBoundingClientRect();
-        const circleSize = 100; // Increased circle size
+        const circleSize = 100; 
         const maxX = containerRect.width - circleSize;
         const maxY = containerRect.height - circleSize;
         const posX = Math.random() * maxX;
         const posY = Math.random() * maxY;
 
-        // Increase speed for more demanding physics
-        const speedX = (Math.random() - 0.5) * 10; // Random speed between -5 and 5
+        
+        const speedX = (Math.random() - 0.5) * 10; 
         const speedY = (Math.random() - 0.5) * 10;
 
-        // Add more graphics intensity
+        
         circle.style.width = `${circleSize}px`;
         circle.style.height = `${circleSize}px`;
         circle.style.left = `${posX}px`;
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         circle.style.borderRadius = '50%';
         circle.style.pointerEvents = 'none';
 
-        // Store circle data with mass for more complex physics
+        
         circles.push({
             element: circle,
             posX,
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
             speedX,
             speedY,
             size: circleSize,
-            mass: circleSize / 10 // Mass proportional to size
+            mass: circleSize / 10 
         });
 
         container.appendChild(circle);
@@ -74,14 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createExplosion() {
-        // Random explosion position
+        
         const containerRect = container.getBoundingClientRect();
         const explosionX = Math.random() * containerRect.width;
         const explosionY = Math.random() * containerRect.height;
-        const explosionForce = 1000; // Adjust for intensity
-        const explosionRadius = 300; // Adjust radius as needed
+        const explosionForce = 1000; 
+        const explosionRadius = 300; 
     
-        // Visual effect for explosion
+        
         const explosion = document.createElement('div');
         explosion.style.position = 'absolute';
         explosion.style.left = `${explosionX - 50}px`;
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         explosion.style.opacity = '0.8';
         container.appendChild(explosion);
     
-        // Remove visual effect after a short time
+        
         setTimeout(() => {
             try {
                 if (container.contains(explosion)) {
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 500);
     
-        // Apply force to nearby circles
+        
         circles.forEach(circle => {
             const dx = circle.posX + circle.size / 2 - explosionX;
             const dy = circle.posY + circle.size / 2 - explosionY;
@@ -129,14 +129,14 @@ document.addEventListener('DOMContentLoaded', () => {
             circleA.posX += circleA.speedX;
             circleA.posY += circleA.speedY;
 
-            // Add gravity effect
-            circleA.speedY += 0.5; // Increased gravity acceleration
+            
+            circleA.speedY += 0.5; 
 
-            // Apply friction
+            
             circleA.speedX *= 0.99;
             circleA.speedY *= 0.99;
 
-            // Bounce off walls
+            
             if (circleA.posX <= 0) {
                 circleA.posX = 0;
                 circleA.speedX *= -1;
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 circleA.speedY *= -1;
             }
 
-            // Collision detection with other circles
+            
             for (let j = i + 1; j < circles.length; j++) {
                 const circleB = circles[j];
                 const dx = circleA.posX - circleB.posX;
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const minDist = (circleA.size + circleB.size) / 2;
 
                 if (distance < minDist) {
-                    // Resolve overlap
+                    
                     const overlap = minDist - distance;
                     const totalMass = circleA.mass + circleB.mass;
                     const weightA = circleB.mass / totalMass;
@@ -173,14 +173,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     circleB.posX -= dx / distance * overlap * weightB;
                     circleB.posY -= dy / distance * overlap * weightB;
 
-                    // Elastic collision response
+                    
                     const collisionAngle = Math.atan2(dy, dx);
 
-                    // Velocities in normal and tangential directions
+                    
                     const speedA = rotate(circleA.speedX, circleA.speedY, collisionAngle);
                     const speedB = rotate(circleB.speedX, circleB.speedY, collisionAngle);
 
-                    // Conservation of momentum in 1D
+                    
                     const newSpeedA = {
                         x: ((circleA.mass - circleB.mass) * speedA.x + 2 * circleB.mass * speedB.x) / totalMass,
                         y: speedA.y
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         y: speedB.y
                     };
 
-                    // Rotate velocities back
+                    
                     const finalSpeedA = rotate(newSpeedA.x, newSpeedA.y, -collisionAngle);
                     const finalSpeedB = rotate(newSpeedB.x, newSpeedB.y, -collisionAngle);
 
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to rotate velocities for collision calculations
+    
     function rotate(x, y, angle) {
         return {
             x: x * Math.cos(angle) - y * Math.sin(angle),
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fps = 1000 / delta;
         fpsValues.push(fps);
     
-        // Update FPS and timer display
+        
         counterElement.textContent = `FPS: ${fps.toFixed(2)}`;
         const elapsedTime = Math.floor((now - startTime) / 1000);
         const remainingTime = durationInSeconds - elapsedTime;
@@ -231,21 +231,21 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCircles();
     
         if (now - startTime < durationInSeconds * 1000) {
-            // Use setTimeout instead of requestAnimationFrame
+            
             setTimeout(monitorFrameRate, 0);
         } else {
-            // Test duration completed
+            
             displayDoneScreen();
         }
     }
 
     function displayDoneScreen() {
-        // Cancel any remaining animation frames and intervals
+        
         cancelAnimationFrame(animationId);
         clearInterval(circleAdditionInterval);
         clearInterval(explosionInterval);
 
-        // Clear the container
+        
         container.innerHTML = '';
 
         const doneScreen = document.createElement('div');
@@ -253,17 +253,17 @@ document.addEventListener('DOMContentLoaded', () => {
         doneScreen.textContent = 'Test Complete';
         container.appendChild(doneScreen);
 
-        // Calculate average FPS
+        
         const averageFps = fpsValues.reduce((a, b) => a + b, 0) / fpsValues.length;
 
-        // Display average FPS
+        
         const fpsDisplay = document.createElement('div');
         fpsDisplay.textContent = `Average FPS: ${averageFps.toFixed(2)}`;
         fpsDisplay.style.color = '#fff';
         fpsDisplay.style.fontSize = '24px';
         container.appendChild(fpsDisplay);
 
-        // Upload data
+        
         uploadData(averageFps);
     }
 
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(data => {
-            // Sort the data by average FPS from highest to lowest
+            
             data.sort((a, b) => b.averageFps - a.averageFps);
             displayLeaderboard(data);
         })
@@ -319,12 +319,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(() => {
-            // After successful upload, fetch and display leaderboard
+            
             fetchLeaderboard();
         })
         .catch(error => {
             console.error('Error uploading data:', error);
-            // Display error message to user
+            
             const errorMessage = document.createElement('div');
             errorMessage.style.color = 'red';
             errorMessage.textContent = 'Failed to upload results. Please try again.';
@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const leaderboard = document.createElement('div');
     leaderboard.classList.add('leaderboard');
     
-    // Add refresh button
+    
     const refreshButton = document.createElement('button');
     refreshButton.textContent = '🔄 Refresh';
     refreshButton.style.marginBottom = '10px';
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshButton.style.cursor = 'pointer';
     refreshButton.addEventListener('click', fetchLeaderboard);
     
-    // Create header with refresh button
+    
     const header = document.createElement('div');
     header.style.display = 'flex';
     header.style.justifyContent = 'space-between';
@@ -377,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     leaderboard.appendChild(table);
     
-    // Clear previous leaderboard if exists
+    
     const oldLeaderboard = container.querySelector('.leaderboard');
     if (oldLeaderboard) {
         container.removeChild(oldLeaderboard);
@@ -392,9 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
-    // Start the test
+    
     function startTest() {
-        // Display a countdown before starting
+        
         let countdown = 3;
         counterElement.textContent = `Starting in ${countdown}...`;
         const countdownInterval = setInterval(() => {
@@ -404,19 +404,19 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 clearInterval(countdownInterval);
                 counterElement.textContent = '';
-                // Create initial circles
+                
                 createInitialCircles();
-                // Start adding circles every second
+                
                 circleAdditionInterval = setInterval(() => {
                     for (let i = 0; i < circlesPerSecond; i++) {
                         createCircle();
                     }
                 }, 1000);
-                // Start creating explosions every second
+                
                 explosionInterval = setInterval(() => {
                     createExplosion();
                 }, 1000);
-                // Start monitoring frame rate
+                
                 startTime = performance.now();
                 monitorFrameRate();
             }

@@ -1,84 +1,109 @@
-
-
 document.addEventListener('DOMContentLoaded', async () => {
-    
     const cpuNameElement = document.getElementById('cpu-name');
     const gpuNameElement = document.getElementById('gpu-name');
     const ramAmountElement = document.getElementById('ram-amount');
+    const threadsElement = document.createElement('p');
+    threadsElement.innerHTML = 'Threads: <span id="threads-count">Not loaded</span>';
+    const hardwareInfoDiv = document.getElementById('hardware-info');
+    hardwareInfoDiv.appendChild(threadsElement);
 
     const browserNameElement = document.createElement('p');
     browserNameElement.innerHTML = 'Browser: <span id="browser-name">Loading...</span>';
-    const hardwareInfoDiv = document.getElementById('hardware-info');
     hardwareInfoDiv.appendChild(browserNameElement);
 
-
-    const navigatorInfo = navigator.userAgent;
-    const memory = navigator.deviceMemory || 'Unknown';
-    const threads = navigator.hardwareConcurrency || 'Unknown';
-
-
-    const browserName = getBrowserName(navigatorInfo);
-    document.getElementById('browser-name').textContent = browserName;
-
-
-    let cpuName = 'Unknown CPU';
-
-
-    if (cpuName === 'Unknown CPU') {
-        cpuName = `Unknown Name: ${threads} threads`;
-    } else {
-        cpuName = `${cpuName} Threads ${threads}`;
+    
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
+    
+    let cpuName = 'Unknown CPU';
+    let gpuName = 'Unknown GPU';
+    let ramAmount = 'Unknown';
+    let threadsCount = 'Unknown';
 
-    const gpuName = await getWebGLInfo();
-    const ramAmount = memory;
+    
+    const cpuCookie = getCookie('cpu');
+    const gpuCookie = getCookie('gpu');
+    const ramCookie = getCookie('ram');
+    const threadsCookie = getCookie('threads');
+    const browserCookie = getCookie('browser');
+
+    if (cpuCookie) cpuName = cpuCookie;
+    if (gpuCookie) gpuName = gpuCookie;
+    if (ramCookie) ramAmount = ramCookie;
+    if (threadsCookie) threadsCount = threadsCookie;
+
+    
     cpuNameElement.textContent = cpuName;
     gpuNameElement.textContent = gpuName;
-    ramAmountElement.textContent = `${ramAmount} GB`;
+    ramAmountElement.textContent = ramAmount;
+    document.getElementById('threads-count').textContent = threadsCount;
 
-    document.cookie = `username=; path=/`;
-    document.cookie = `cpu=${cpuName}; path=/`;
-    document.cookie = `gpu=${gpuName}; path=/`;
-    document.cookie = `ram=${ramAmount} GB; path=/`;
-    document.cookie = `browser=${browserName}; path=/`;
+    
+    const navigatorInfo = navigator.userAgent;
+    const memory = navigator.deviceMemory || 'Unknown';
+    const navigatorThreads = navigator.hardwareConcurrency || 'Unknown';
 
+    let browserName = getBrowserName(navigatorInfo);
+    if (browserCookie) {
+        browserName = browserCookie;
+    } else {
+        
+        document.cookie = `browser=${browserName}; path=/`;
+    }
+    document.getElementById('browser-name').textContent = browserName;
 
+    
+    document.cookie = `username=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+
+    
+    const usernameInput = document.getElementById('username');
     const continueButton = document.getElementById('continue-button');
-    continueButton.addEventListener('click', () => {
-        const usernameInput = document.getElementById('username').value.trim();
 
+    
+    continueButton.disabled = true;
+
+    
+    usernameInput.addEventListener('input', () => {
+        continueButton.disabled = usernameInput.value.trim() === '';
+    });
+
+    
+    continueButton.addEventListener('click', () => {
+        const username = usernameInput.value.trim();
+
+        
         const existingError = document.querySelector('.error-message');
         if (existingError) {
             existingError.remove();
         }
-    
 
-        if (!usernameInput) {
+        if (!username) {
+            
             const errorMessage = document.createElement('div');
             errorMessage.className = 'error-message';
             errorMessage.style.color = 'red';
             errorMessage.style.marginTop = '10px';
             errorMessage.textContent = 'Please enter a username before continuing';
-            
-            const usernameElement = document.getElementById('username');
-            usernameElement.parentNode.insertBefore(errorMessage, usernameElement.nextSibling);
-            usernameElement.focus();
+
+            usernameInput.parentNode.insertBefore(errorMessage, usernameInput.nextSibling);
+            usernameInput.focus();
             return;
         }
-    
 
-        document.cookie = `username=${usernameInput}; path=/`;
+        
+        document.cookie = `username=${username}; path=/`;
         window.location.href = '/test';
     });
-
 
     const modal = document.getElementById('instruction-modal');
     const getInfoButton = document.getElementById('get-info-button');
     const closeModal = document.querySelector('.close');
     const cmdCodeElement = document.getElementById('cmd-code');
     const copyButton = document.getElementById('copy-button');
-    const linkCodeElement = document.getElementById('link-code');
     const successMessage = document.getElementById('success-message');
 
     if (!modal) console.error('Modal element is missing');
@@ -86,141 +111,78 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!closeModal) console.error('Close Modal element is missing');
     if (!cmdCodeElement) console.error('CMD Code Element is missing');
     if (!copyButton) console.error('Copy Button element is missing');
-    if (!linkCodeElement) console.error('Link Code Element is missing');
     if (!successMessage) console.error('Success Message element is missing');
-    
-    if (!modal || !getInfoButton || !closeModal || !cmdCodeElement || !copyButton || !linkCodeElement || !successMessage) {
+
+    if (!modal || !getInfoButton || !closeModal || !cmdCodeElement || !copyButton || !successMessage) {
         return;
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        const cpuNameElement = document.getElementById('cpu-name');
-        const gpuNameElement = document.getElementById('gpu-name');
-        const ramAmountElement = document.getElementById('ram-amount');
-        
+    let linkCode = null;
+    let statusInterval = null;
 
-        const browserNameElement = document.createElement('p');
-        browserNameElement.innerHTML = 'Browser: <span id="browser-name">Loading...</span>';
-        const hardwareInfoDiv = document.getElementById('hardware-info');
-        hardwareInfoDiv.appendChild(browserNameElement);
-    
-
-        const navigatorInfo = navigator.userAgent;
-        const memory = navigator.deviceMemory || 'Unknown';
-        const threads = navigator.hardwareConcurrency || 'Unknown';
-    
-
-        const browserName = getBrowserName(navigatorInfo);
-        document.getElementById('browser-name').textContent = browserName;
-    
-
-        let cpuName = 'Unknown CPU';
-    
-
-        if (cpuName === 'Unknown CPU') {
-            cpuName = `Unknown Name: ${threads} threads`;
-        } else {
-            cpuName = `${cpuName} Threads ${threads}`;
-        }
-    
-
-        const gpuName = await getWebGLInfo();
-        const ramAmount = memory;
-        cpuNameElement.textContent = cpuName;
-        gpuNameElement.textContent = gpuName;
-        ramAmountElement.textContent = `${ramAmount} GB`;
-    
-
-        document.cookie = `username=; path=/`;
-        document.cookie = `cpu=${cpuName}; path=/`;
-        document.cookie = `gpu=${gpuName}; path=/`;
-        document.cookie = `ram=${ramAmount} GB; path=/`;
-        document.cookie = `browser=${browserName}; path=/`;
-    
-
-        const continueButton = document.getElementById('continue-button');
-        continueButton.addEventListener('click', () => {
-            const usernameInput = document.getElementById('username').value.trim();
-            
-
-            const existingError = document.querySelector('.error-message');
-            if (existingError) {
-                existingError.remove();
-            }
-        
-
-            if (!usernameInput) {
-                const errorMessage = document.createElement('div');
-                errorMessage.className = 'error-message';
-                errorMessage.style.color = 'red';
-                errorMessage.style.marginTop = '10px';
-                errorMessage.textContent = 'Please enter a username before continuing';
-                
-                const usernameElement = document.getElementById('username');
-                usernameElement.parentNode.insertBefore(errorMessage, usernameElement.nextSibling);
-                usernameElement.focus();
-                return;
-            }
-        
-
-            document.cookie = `username=${usernameInput}; path=/`;
-            window.location.href = '/test';
-        });
-    
-
-        const modal = document.getElementById('instruction-modal');
-        const getInfoButton = document.getElementById('get-info-button');
-        const closeModal = document.querySelector('.close');
-        const cmdCodeElement = document.getElementById('cmd-code');
-        const copyButton = document.getElementById('copy-button');
-        const linkCodeElement = document.getElementById('link-code');
-        const successMessage = document.getElementById('success-message');
-    
-        if (!modal) console.error('Modal element is missing');
-        if (!getInfoButton) console.error('Get Info Button element is missing');
-        if (!closeModal) console.error('Close Modal element is missing');
-        if (!cmdCodeElement) console.error('CMD Code Element is missing');
-        if (!copyButton) console.error('Copy Button element is missing');
-        if (!linkCodeElement) console.error('Link Code Element is missing');
-        if (!successMessage) console.error('Success Message element is missing');
-        
-        if (!modal || !getInfoButton || !closeModal || !cmdCodeElement || !copyButton || !linkCodeElement || !successMessage) {
-            return;
-        }
-    
-        getInfoButton.addEventListener('click', () => {
+    getInfoButton.addEventListener('click', async () => {
+        if (!linkCode) {
             modal.style.display = 'block';
-        });
-    
-        closeModal.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    
-        window.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-    
-        copyButton.addEventListener('click', () => {
-            navigator.clipboard.writeText(cmdCodeElement.textContent).then(() => {
-                copyButton.textContent = 'Copied!';
-                setTimeout(() => {
-                    copyButton.textContent = 'Copy';
-                }, 2000);
-            });
-        });
-    
 
-        const downloadButton = document.getElementById('download-button');
-        downloadButton.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.href = '/src/hwinfo.cmd';
-            link.download = 'hwinfo.cmd';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
+            
+            const response = await fetch('/api/v1/link/generate', { method: 'GET' });
+            const data = await response.json();
+            linkCode = data.code;
+
+            
+            const isWindows = navigator.platform.indexOf('Win') > -1;
+
+            
+            let cmdCode;
+            if (isWindows) {
+                cmdCode = `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                ; Invoke-WebRequest -Uri "http://localhost:2077/src/hwinfo.ps1" -OutFile "hwinfo.ps1"; .\\hwinfo.ps1 -code "${linkCode}"`;
+            } else {
+                cmdCode = `curl -O 'http://localhost:2077/api/v1/hwinfo.sh?code=${linkCode}' && chmod +x hwinfo.sh && ./hwinfo.sh ${linkCode}`;
+            }
+            cmdCodeElement.textContent = cmdCode;
+
+            
+            const checkLinkCodeStatus = async () => {
+                const statusResponse = await fetch(`/api/v1/link/status/${linkCode}`);
+                if (statusResponse.status === 404) {
+                    console.error('Status endpoint not found.');
+                    clearInterval(statusInterval);
+                    return;
+                }
+                const statusData = await statusResponse.json();
+                if (statusData.status === 'success') {
+                    successMessage.style.display = 'block';
+                    clearInterval(statusInterval);
+
+                    
+                    const hardwareInfo = statusData.hardware_info;
+                    cpuName = hardwareInfo.cpu;
+                    gpuName = hardwareInfo.gpu;
+                    ramAmount = hardwareInfo.ram;
+                    threadsCount = hardwareInfo.threads;
+
+                    
+                    cpuNameElement.textContent = cpuName;
+                    gpuNameElement.textContent = gpuName;
+                    ramAmountElement.textContent = ramAmount;
+                    document.getElementById('threads-count').textContent = threadsCount;
+
+                    
+                    document.cookie = `cpu=${cpuName}; path=/`;
+                    document.cookie = `gpu=${gpuName}; path=/`;
+                    document.cookie = `ram=${ramAmount}; path=/`;
+                    document.cookie = `threads=${threadsCount}; path=/`;
+
+                    
+                    modal.style.display = 'none';
+                }
+            };
+
+            statusInterval = setInterval(checkLinkCodeStatus, 1000);
+        } else {
+            modal.style.display = 'block';
+        }
     });
 
     closeModal.addEventListener('click', () => {
@@ -243,6 +205,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
+document.getElementById('view-source-button').addEventListener('click', () => {
+    window.open('https://example.com', '_blank');
+});
 
 function getBrowserName(userAgent) {
     if (userAgent.indexOf('Firefox') > -1) {
@@ -262,7 +227,7 @@ function getBrowserName(userAgent) {
     }
 }
 
-// Function to get GPU info
+
 async function getWebGLInfo() {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');

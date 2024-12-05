@@ -33,7 +33,7 @@ body {
     right: 10px;
 }
 
-/* Move the done-screen to the top of the screen */
+
 .done-screen {
     position: absolute;
     top: 10px;
@@ -42,7 +42,7 @@ body {
     color: #fff;
     font-size: 36px;
     text-align: center;
-    z-index: 1000; /* Ensure it's on top */
+    z-index: 1000;
 }
 
 .leaderboard {

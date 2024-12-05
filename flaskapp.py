@@ -1,20 +1,28 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
-from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask import Flask, request, jsonify, render_template, send_from_directory, make_response
 import os
 import random
 import string
+import time
+from threading import Timer
+import logging
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
 
-# In-memory storage
+
 leaderboard_data = []
-active_connections = {}
 link_codes = {}
 
 def generate_link_code():
     """Generate a random 5-digit link code"""
     return ''.join(random.choices(string.digits, k=5))
+
+def invalidate_link_code(code):
+    """Invalidate the link code after 10 minutes"""
+    if code in link_codes:
+        del link_codes[code]
+
+
+logging.basicConfig(level=logging.INFO)
 
 @app.route("/")
 def index():
@@ -48,54 +56,79 @@ def download_file(filename):
     src_directory = os.path.join(app.root_path, 'src')
     return send_from_directory(src_directory, filename)
 
-# New link system routes
-@app.route('/api/v1/link', methods=['GET', 'POST'])
-def link_endpoint():
-    if request.method == 'GET':
+
+
+@app.route('/api/v1/link/generate', methods=['GET'])
+def generate_link_endpoint():
+    code = generate_link_code()
+    while code in link_codes:
         code = generate_link_code()
-        while code in link_codes:
-            code = generate_link_code()
-        link_codes[code] = None
-        return jsonify({'code': code})
+    link_codes[code] = None
+    logging.info(f"Generated new link code: {code}")
     
-    elif request.method == 'POST':
-        data = request.json
-        code = data.get('code')
-        hardware_info = {
-            'ram': data.get('ram'),
-            'gpu': data.get('gpu'),
-            'cpu': data.get('cpu'),
-            'threads': data.get('threads')
-        }
-        
-        if code in link_codes:
-            if code in active_connections:
-                socketio.emit('hardware_info', hardware_info, room=active_connections[code])
-                return jsonify({'status': 'success', 'message': 'Hardware info sent'})
-            return jsonify({'status': 'error', 'message': 'No active connection for this code'})
-        return jsonify({'status': 'error', 'message': 'Invalid link code'})
+    Timer(600, invalidate_link_code, args=[code]).start()
+    return jsonify({'code': code})
 
-@socketio.on('connect')
-def handle_connect():
-    print(f'Client connected: {request.sid}')
+@app.route('/api/v1/link/submit', methods=['POST'])
+def submit_link_code():
+    data = request.json
+    logging.info(f"Received POST data: {data}")
+    code = data.get('code')
+    
+    if not code:
+        logging.error("No code provided in the POST data.")
+        return jsonify({'status': 'error', 'message': 'No code provided.'}), 400
+    
+    
+    code = str(code)
+    
+    hardware_info = {
+        'ram': data.get('ram'),
+        'gpu': data.get('gpu'),
+        'cpu': data.get('cpu'),
+        'threads': data.get('threads')
+    }
+    
+    if code in link_codes and code.isdigit():
+        link_codes[code] = hardware_info
+        logging.info(f"Hardware info stored for code {code}: {hardware_info}")
+        return jsonify({'status': 'success', 'message': 'Hardware info received', 'hardware_info': hardware_info})
+    
+    logging.error(f"Invalid link code received: {code}")
+    return jsonify({'status': 'error', 'message': 'Invalid link code, missing parameters or server error'}), 400
 
-@socketio.on('register_code')
-def handle_register(data):
-    code = data['code']
-    if code in link_codes:
-        active_connections[code] = request.sid
-        join_room(request.sid)
-        emit('registration_success', {'message': 'Waiting for hardware info'})
-    else:
-        emit('registration_error', {'message': 'Invalid link code'})
 
-@socketio.on('disconnect')
-def handle_disconnect():
-    for code, sid in list(active_connections.items()):
-        if sid == request.sid:
-            del active_connections[code]
-            if code in link_codes:
-                del link_codes[code]
+@app.route('/api/v1/link/status/<code>', methods=['GET'])
+def link_status(code):
+    if code in link_codes and link_codes[code] is not None:
+        return jsonify({
+            'status': 'success',
+            'message': 'Hardware info received',
+            'hardware_info': link_codes[code]
+        })
+    return jsonify({
+        'status': 'pending',
+        'message': 'Waiting for hardware info'
+    })
+@app.route('/api/v1/hwinfo.sh', methods=['GET'])
+def download_hwinfo_sh_script():
+    code = request.args.get('code')
+    if not code:
+        return jsonify({'status': 'error', 'message': 'Missing link code. This request has failed.'}), 400
+    elif code not in link_codes:
+        return jsonify({'status': 'error', 'message': 'Invalid code in arguments. This request has failed.'}), 400
+
+    return send_from_directory(directory=os.path.join(app.root_path, 'src'), filename='hwinfo.sh', as_attachment=True)
+
+@app.route('/api/v1/hwinfo.ps1', methods=['GET'])
+def download_hwinfo_ps1_script():
+    code = generate_link_code()
+    link_codes[code] = None
+    logging.info(f"Generated new link code: {code}")
+    
+    Timer(600, invalidate_link_code, args=[code]).start()
+    
+    return send_from_directory(directory=os.path.join(app.root_path, 'src'), filename='hwinfo.ps1', as_attachment=True)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0')
+    app.run(host='0.0.0.0', port=2077)
