@@ -1,3 +1,10 @@
+# Welcome to this script!
+# you are probably viewing this becuase you don't trust the website url and thats fine!
+# If you would like to run this script on your own, just supply the code shown on the website as execution parameter with this file which you download
+# enjoy
+
+
+
 param (
     [string]$code
 )
